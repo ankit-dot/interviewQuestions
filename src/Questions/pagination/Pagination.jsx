@@ -1,23 +1,19 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 
+import { initialState, paginationReducer } from '../../Reducers/PaginationReducer';
 const Pagination = () => {
-    const [products , setProducts] = useState([]);
-    const [page , setPage] = useState(1);
-    const [loading , setLoading] = useState(false);
-    const [totalPages, setTotalPages] = useState()
     
-
-    
+  const [state, dispatch] = useReducer(paginationReducer, initialState);
+  const {products, page, loading, totalPages} = state;
+  
 
   async function getData(){
 
-    setLoading(true);
+    dispatch({type:'FETCH_PRODUCTS'});
     const response = await axios.get(`https://dummyjson.com/products?limit=10&skip=${page*10 - 10}`);
-    console.log(totalPages);
-    setTotalPages(response.data.total/10)
-    setProducts(response.data.products);
-    setLoading(false);
+    
+    dispatch({ type: 'SET_PRODUCTS', payload: {products: response.data.products, totalPages: response.data.total / 10}})
     
   }
 
@@ -29,7 +25,7 @@ const Pagination = () => {
 
  function updatePage(pageNum){
     if(pageNum > 0 && pageNum <= (totalPages) && pageNum !== page ){
-        setPage(pageNum);
+        dispatch({type:'SET_PAGE', payload: pageNum});
     }
  }
 
